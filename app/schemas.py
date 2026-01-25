@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 class TransactionInput(BaseModel):
     Time: float
-    Amount: float
     V1: float
     V2: float
     V3: float
@@ -33,3 +32,4 @@ class TransactionInput(BaseModel):
     V26: float
     V27: float
     V28: float
+    Amount: float

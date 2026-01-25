@@ -1,8 +1,8 @@
 # Data
-data/
+data/raw/creditcard.csv
 
 # Model files
-model/
+models/*.pkl
 
 # Python cache
 __pycache__/
