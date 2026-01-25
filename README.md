@@ -16,11 +16,11 @@ is to predict whether a transaction is fraudulent based on transaction features.
 - Docker
 
 
-## Project Structure
-  credit-card-fraud-detection/
-    │
-    ├── app/
-│        └── main.py            # FastAPI application
+# Project Structure
+credit-card-fraud-detection/
+│
+├── app/
+│    └── main.py            # FastAPI application
 │
 ├── ml/
 │   └── train_rf.py        # Model training script
