@@ -38,7 +38,7 @@ credit-card-fraud-detection/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
-
+```
 ## How to Run the Project
 
 ### 1. Install dependencies
