@@ -17,10 +17,10 @@ is to predict whether a transaction is fraudulent based on transaction features.
 
 
 ## Project Structure
-credit-card-fraud-detection/
-│
-├── app/
-│   └── main.py            # FastAPI application
+  credit-card-fraud-detection/
+    │
+    ├── app/
+│        └── main.py            # FastAPI application
 │
 ├── ml/
 │   └── train_rf.py        # Model training script
