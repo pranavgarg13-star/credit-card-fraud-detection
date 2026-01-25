@@ -17,7 +17,7 @@ is to predict whether a transaction is fraudulent based on transaction features.
 
 
 ## Project Structure
-```text
+```
 credit-card-fraud-detection/
 │
 ├── app/
