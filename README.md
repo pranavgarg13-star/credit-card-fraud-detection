@@ -17,9 +17,9 @@ is to predict whether a transaction is fraudulent based on transaction features.
 
 
 ## Project Structure
-#credit-card-fraud-detection/
-#│
-#├── app/
+credit-card-fraud-detection/
+│
+├── app/
 │   └── main.py            # FastAPI application
 │
 ├── ml/
