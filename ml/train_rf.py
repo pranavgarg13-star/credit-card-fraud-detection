@@ -1,35 +1,52 @@
-import os
+import pandas as pd
 import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+import os
 
+
+
+
+
+# Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, "data", "raw", "creditcard.csv")
+SCALER_PATH = os.path.join(BASE_DIR, "data", "processed", "scaler.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_model.pkl")
 
-# Load processed data
-X_train = joblib.load(os.path.join(BASE_DIR, "data/processed/X_train.pkl"))
-X_test = joblib.load(os.path.join(BASE_DIR, "data/processed/X_test.pkl"))
-y_train = joblib.load(os.path.join(BASE_DIR, "data/processed/y_train.pkl"))
-y_test = joblib.load(os.path.join(BASE_DIR, "data/processed/y_test.pkl"))
+# Load data
+df = pd.read_csv(DATA_PATH)
 
-# Random Forest model
-rf_model = RandomForestClassifier(
+# Features & target
+X = df.drop("Class", axis=1)   # 30 features
+y = df["Class"]
+
+# Scale ALL features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Save scaler
+joblib.dump(scaler, SCALER_PATH)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y,
+    test_size=0.2,
+    stratify=y,
+    random_state=42
+)
+
+# Train RF
+rf = RandomForestClassifier(
     n_estimators=100,
-    max_depth=12,
-    class_weight="balanced",
     random_state=42,
     n_jobs=-1
 )
-
-# Train
-rf_model.fit(X_train, y_train)
-
-# Evaluate
-y_pred = rf_model.predict(X_test)
-print("\n📌 Random Forest Classification Report:")
-print(classification_report(y_test, y_pred))
+rf.fit(X_train, y_train)
 
 # Save model
-os.makedirs(os.path.join(BASE_DIR, "models"), exist_ok=True)
-joblib.dump(rf_model, os.path.join(BASE_DIR, "models/random_forest_model.pkl"))
+joblib.dump(rf, MODEL_PATH)
 
-print("✅ Random Forest model trained and saved!")
+print("✅ Random Forest trained and saved")
+print("✅ Scaler saved")
