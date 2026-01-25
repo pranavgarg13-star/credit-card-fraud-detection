@@ -17,6 +17,7 @@ is to predict whether a transaction is fraudulent based on transaction features.
 
 
 # Project Structure
+(
 credit-card-fraud-detection/
 │
 ├── app/
@@ -37,6 +38,7 @@ credit-card-fraud-detection/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+)
 
 ## How to Run the Project
 
