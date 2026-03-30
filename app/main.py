@@ -80,6 +80,13 @@ class Transaction(BaseModel):
 def home():
     return {"message": "Credit Card Fraud Detection API is running"}
 
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "models_loaded": list(MODEL_REGISTRY.keys())
+    }
+
 @app.post("/predict")
 def predict_fraud(
     data: Transaction,
@@ -95,12 +102,14 @@ def predict_fraud(
         [input_dict[feature] for feature in FEATURE_ORDER]
     ).reshape(1, -1)
 
-    X_scaled = scaler.transform(X)
-
-    prediction = selected_model.predict(X_scaled)[0]
-    probability = selected_model.predict_proba(X_scaled)[0][1]
+    try:
+        X_scaled = scaler.transform(X)
+        prediction = selected_model.predict(X_scaled)[0]
+        probability = selected_model.predict_proba(X_scaled)[0][1]
+    except Exception as e:
+         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+    
     prob = float(probability)
-
     if prob >= HIGH_RISK_THRESHOLD:
        risk = "HIGH"
        decision = "Likely fraudulent transaction"
@@ -117,6 +126,30 @@ def predict_fraud(
     "risk_level": risk,
     "decision": decision
     }
+
+@app.get("/explain")
+def explain_model(model: str = Query("rf", enum=["rf", "logistic"])):
+    selected_model = MODEL_REGISTRY.get(model)
+    if not selected_model:
+        raise HTTPException(status_code=400, detail="Invalid model")
+    
+    if model == "rf":
+        importances = selected_model.feature_importances_
+        features = FEATURE_ORDER
+        ranked = sorted(
+            zip(features, importances),
+            key=lambda x: x[1],
+            reverse=True
+        )
+        return {
+            "model": model,
+            "top_features": [
+                {"feature": f, "importance": round(float(i), 4)}
+                for f, i in ranked[:10]
+            ]
+        }
+    else:
+        return {"model": model, "note": "Logistic regression uses coefficients, not importances"}
 
 
 
