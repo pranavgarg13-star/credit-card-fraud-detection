@@ -17,7 +17,11 @@ is to predict whether a transaction is fraudulent based on transaction features.
 
 
 ## Project Structure
+<<<<<<< HEAD
 ```
+=======
+```text
+>>>>>>> 3d484e2 (hix train_rf.py)
 credit-card-fraud-detection/
 │
 ├── app/
@@ -39,6 +43,7 @@ credit-card-fraud-detection/
 ├── README.md
 └── .gitignore
 ```
+
 ## How to Run the Project
 
 ### 1. Install dependencies

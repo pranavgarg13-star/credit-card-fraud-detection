@@ -24,19 +24,26 @@ X = df.drop("Class", axis=1)
 y = df["Class"]
 
 # ---------------- Scale ----------------
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# ---------------- Train ----------------
+# correct — split first, then fit scaler only on train
 X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.2, random_state=42
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)  # scaler learns from train only
+X_test = scaler.transform(X_test)        # applies same stats to test
 
 model = RandomForestClassifier(
     n_estimators=100,
+    class_weight="balanced",
     random_state=42,
     n_jobs=-1
 )
+
+
+os.makedirs(os.path.join(BASE_DIR, "data", "processed"), exist_ok=True)
+joblib.dump(X_test, os.path.join(BASE_DIR, "data/processed/X_test.pkl"))
+joblib.dump(y_test, os.path.join(BASE_DIR, "data/processed/y_test.pkl")) 
 
 model.fit(X_train, y_train)
 
