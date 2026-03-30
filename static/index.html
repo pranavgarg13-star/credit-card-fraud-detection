@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fraud Detection</title>
+   <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Fraud Detection System</h2>
+
+    <form id="fraudForm">
+        <label>Amount</label>
+        <input type="number" id="amount" required>
+
+        <label>Time</label>
+        <input type="number" id="time" required>
+
+        <label>Model</label>
+        <select id="model">
+            <option value="rf">Random Forest</option>
+            <option value="lr">Logistic Regression</option>
+        </select>
+
+        <button type="submit">Check Fraud</button>
+    </form>
+
+    <div id="resultCard" class="card hidden">
+        <h3 id="riskLevel">Risk: </h3>
+        <p id="probability"></p>
+    </div>
+</div>
+
+<script>
+async function checkFraud(formData) {
+    const response = await fetch(`/predict?model=${formData.model}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+    });
+
+    const result = await response.json();
+    return result;
+}
+
+document.getElementById("fraudForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = {
+        amount: document.getElementById("amount").value,
+        time: document.getElementById("time").value,
+        model: document.getElementById("model").value
+    };
+
+    const result = await checkFraud(formData);
+
+    const card = document.getElementById("resultCard");
+    const riskText = document.getElementById("riskLevel");
+    const probText = document.getElementById("probability");
+
+    // Update text
+    riskText.innerText = "Risk: " + result.risk_level;
+    probText.innerText = "Fraud Probability: " + (result.fraud_probability * 100).toFixed(2) + "%";
+
+    // Remove previous color classes
+    card.classList.remove("low", "medium", "high");
+
+    // Apply color based on risk
+    if (result.risk_level === "HIGH") {
+        card.classList.add("high");
+    } else if (result.risk_level === "MEDIUM") {
+        card.classList.add("medium");
+    } else {
+        card.classList.add("low");
+    }
+
+    card.classList.remove("hidden");
+});
+</script>
+
+</body>
+</html>

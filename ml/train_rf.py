@@ -19,6 +19,7 @@ os.makedirs(os.path.dirname(SCALER_PATH), exist_ok=True)
 
 # ---------------- Load Data ----------------
 df = pd.read_csv(DATA_PATH)
+print(f"Loaded {len(df)} rows from {DATA_PATH}")  # ← add this
 
 X = df.drop("Class", axis=1)
 y = df["Class"]
@@ -37,7 +38,7 @@ model = RandomForestClassifier(
     n_estimators=100,
     class_weight="balanced",
     random_state=42,
-    n_jobs=-1
+     n_jobs=1 
 )
 
 
@@ -46,6 +47,7 @@ joblib.dump(X_test, os.path.join(BASE_DIR, "data/processed/X_test.pkl"))
 joblib.dump(y_test, os.path.join(BASE_DIR, "data/processed/y_test.pkl")) 
 
 model.fit(X_train, y_train)
+print("✅ Model trained")
 
 # ---------------- Save ----------------
 joblib.dump(model, MODEL_PATH)

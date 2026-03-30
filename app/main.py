@@ -4,22 +4,28 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 import os
-
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import pandas as pd
 app = FastAPI()
+
+# After app = FastAPI(...), add:
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("static/index.html")
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_model.pkl")
+
 SCALER_PATH = os.path.join(BASE_DIR, "data", "processed", "scaler.pkl")
 
-# Load model & scaler ONCE
-# rf_model = joblib.load(MODEL_PATH)
+
 scaler = joblib.load(SCALER_PATH)
 
-RF_MODEL_PATH = "models/rf_model.pkl"
-LOG_MODEL_PATH = "models/logistic_model.pkl"
-
+RF_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_model.pkl")
+LOG_MODEL_PATH = os.path.join(BASE_DIR, "models", "logistic_model.pkl")
 rf_model = joblib.load(RF_MODEL_PATH)
 logistic_model = joblib.load(LOG_MODEL_PATH)
 
@@ -76,9 +82,6 @@ class Transaction(BaseModel):
     Amount: float
 
 
-@app.get("/")
-def home():
-    return {"message": "Credit Card Fraud Detection API is running"}
 
 @app.get("/health")
 def health():
@@ -98,9 +101,9 @@ def predict_fraud(
         raise HTTPException(status_code=400, detail="Invalid model selected")
 
     input_dict = data.dict()
-    X = np.array(
-        [input_dict[feature] for feature in FEATURE_ORDER]
-    ).reshape(1, -1)
+    
+    X = pd.DataFrame([input_dict])[FEATURE_ORDER]
+
 
     try:
         X_scaled = scaler.transform(X)
