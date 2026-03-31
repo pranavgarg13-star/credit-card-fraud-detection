@@ -1,16 +1,5 @@
-# Data
-data/raw/creditcard.csv
-
-# Model files
-models/*.pkl
-
-# Python cache
+data/raw/
 __pycache__/
 *.pyc
-
-# Virtual environment
-venv/
 .env
-
-# OS files
-.DS_Store
+*.log
