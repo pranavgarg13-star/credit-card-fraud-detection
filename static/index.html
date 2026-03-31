@@ -2,93 +2,364 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fraud Detection</title>
-   <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudGuard — ML Fraud Detection API</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<div class="container">
-    <h2>Fraud Detection System</h2>
+<canvas id="grid-canvas"></canvas>
 
-    <form id="fraudForm">
-        <label>Amount</label>
-        <input type="number" id="amount" required>
-
-        <label>Time</label>
-        <input type="number" id="time" required>
-
-        <label>Model</label>
-        <select id="model">
-            <option value="rf">Random Forest</option>
-            <option value="logistic">Logistic Regression</option>
-        </select>
-
-        <button type="submit">Check Fraud</button>
-        <p class="note">Demo uses Amount and Time only. V1-V28 are anonymized bank features.</p>
-        <button type="button" id="loadExample">Load fraud example</button>
-    </form>
-
-    <div id="resultCard" class="card hidden">
-        <h3 id="riskLevel">Risk: </h3>
-        <p id="probability"></p>
+<nav>
+    <div class="nav-inner">
+        <div class="logo">FRAUDGUARD<span class="logo-dot">.</span></div>
+        <div class="nav-links">
+            <a href="/health" class="nav-link">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">checking...</span>
+            </a>
+            <a href="/docs" class="nav-cta">API Console →</a>
+        </div>
     </div>
-</div>
+</nav>
+
+<header class="hero">
+    <div class="hero-inner">
+        <div class="hero-tag">ML-POWERED · REAL-TIME · REST API</div>
+        <h1>Fraud detection<br><span class="accent">at inference speed.</span></h1>
+        <p class="hero-sub">A machine learning API trained on 284,807 real transactions. Send a transaction, get a risk assessment in milliseconds.</p>
+        <div class="hero-actions">
+            <a href="/docs" class="btn-primary">Open API Console</a>
+            <a href="#how" class="btn-ghost">See how it works</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-num" data-target="284807">0</div>
+                <div class="stat-label">Transactions trained</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">0.17<span>%</span></div>
+                <div class="stat-label">Fraud rate in dataset</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">2</div>
+                <div class="stat-label">Models available</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">30</div>
+                <div class="stat-label">Input features</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="ticker-wrap">
+    <div class="ticker">
+        <span>RANDOM FOREST · PRECISION 96% · RECALL 74%</span>
+        <span>LOGISTIC REGRESSION · PRECISION 6% · RECALL 90%</span>
+        <span>StandardScaler · Train-only fit · No data leakage</span>
+        <span>class_weight=balanced · Handles 0.17% fraud rate</span>
+        <span>RANDOM FOREST · PRECISION 96% · RECALL 74%</span>
+        <span>LOGISTIC REGRESSION · PRECISION 6% · RECALL 90%</span>
+        <span>StandardScaler · Train-only fit · No data leakage</span>
+        <span>class_weight=balanced · Handles 0.17% fraud rate</span>
+    </div>
+</section>
+
+<section class="section" id="how">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag">ARCHITECTURE</div>
+            <h2>How it works</h2>
+        </div>
+
+        <div class="pipeline">
+            <div class="pipeline-step" data-step="01">
+                <div class="step-icon">⬡</div>
+                <h3>Transaction captured</h3>
+                <p>Bank systems collect dozens of signals the moment a card is used — merchant, device, location, velocity, account history.</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step" data-step="02">
+                <div class="step-icon">⬡</div>
+                <h3>PCA transform</h3>
+                <p>Raw signals are compressed into 28 anonymous components (V1–V28) via PCA. Customer data is protected. Patterns are preserved.</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step" data-step="03">
+                <div class="step-icon">⬡</div>
+                <h3>API inference</h3>
+                <p>Your system calls <code>POST /predict</code> with 30 fields. The model scales, predicts, and returns a risk level in milliseconds.</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step" data-step="04">
+                <div class="step-icon">⬡</div>
+                <h3>Risk decision</h3>
+                <p>Response includes fraud probability, risk level (LOW / MEDIUM / HIGH), and a human-readable decision string.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section dark-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag">MODELS</div>
+            <h2>Two models, two tradeoffs</h2>
+        </div>
+        <div class="model-grid">
+            <div class="model-card" id="rfCard">
+                <div class="model-header">
+                    <div class="model-name">Random Forest</div>
+                    <div class="model-badge">rf</div>
+                </div>
+                <p class="model-desc">100 decision trees with balanced class weights. Conservative and precise — when it says fraud, trust it. Best for systems where false alarms are costly.</p>
+                <div class="model-bars">
+                    <div class="bar-row">
+                        <span>Precision</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:96%">96%</div></div>
+                    </div>
+                    <div class="bar-row">
+                        <span>Recall</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:74%">74%</div></div>
+                    </div>
+                    <div class="bar-row">
+                        <span>F1 Score</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:84%">84%</div></div>
+                    </div>
+                </div>
+                <div class="model-note">Misses ~26% of fraud. 3 false alarms per 56,864 legit transactions.</div>
+            </div>
+
+            <div class="model-card" id="lrCard">
+                <div class="model-header">
+                    <div class="model-name">Logistic Regression</div>
+                    <div class="model-badge">logistic</div>
+                </div>
+                <p class="model-desc">Linear model with balanced weights. Aggressive catch rate — flags almost all fraud but generates more false positives. Best for high-stakes fraud prevention.</p>
+                <div class="model-bars">
+                    <div class="bar-row">
+                        <span>Precision</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:6%; --c:#f59e0b">6%</div></div>
+                    </div>
+                    <div class="bar-row">
+                        <span>Recall</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:90%">90%</div></div>
+                    </div>
+                    <div class="bar-row">
+                        <span>F1 Score</span>
+                        <div class="bar-track"><div class="bar-fill" style="--w:12%; --c:#f59e0b">12%</div></div>
+                    </div>
+                </div>
+                <div class="model-note">Catches 88/98 fraud cases. Flags 1,290 legit transactions as suspicious.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="try">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag">USAGE</div>
+            <h2>Try it in the API console</h2>
+            <p class="section-sub">Open <a href="/docs">/docs</a> → click <code>POST /predict</code> → <strong>Try it out</strong> → paste an example below → <strong>Execute</strong></p>
+        </div>
+
+        <div class="examples">
+            <div class="example-card legit-card">
+                <div class="example-header">
+                    <div class="example-badge legit-badge">● LEGITIMATE</div>
+                    <button class="copy-btn" onclick="copyExample('legit')">Copy JSON</button>
+                </div>
+                <pre id="legit-json">{
+  "Time": 406, "Amount": 2.69,
+  "V1": -0.3122, "V2": 1.1519, "V3": 1.9242,
+  "V4": -0.3006, "V5": -0.2218, "V6": -0.6498,
+  "V7": 0.7245, "V8": -0.0613, "V9": 0.3337,
+  "V10": 0.1723, "V11": 0.7229, "V12": -0.0672,
+  "V13": 0.3670, "V14": -0.4524, "V15": 0.1013,
+  "V16": -0.4413, "V17": 0.0600, "V18": -0.0723,
+  "V19": -0.1613, "V20": -0.0117, "V21": -0.0356,
+  "V22": -0.0469, "V23": 0.0318, "V24": 0.1714,
+  "V25": 0.1259, "V26": -0.0089, "V27": 0.0149,
+  "V28": 0.0144
+}</pre>
+                <div class="expected">Expected: <strong class="low-text">LOW risk · ~2% probability</strong></div>
+            </div>
+
+            <div class="example-card fraud-card">
+                <div class="example-header">
+                    <div class="example-badge fraud-badge">● FRAUDULENT</div>
+                    <button class="copy-btn" onclick="copyExample('fraud')">Copy JSON</button>
+                </div>
+                <pre id="fraud-json">{
+  "Time": -0.7976, "Amount": -0.3516,
+  "V1": -0.6494, "V2": 1.4936, "V3": -1.8815,
+  "V4": 1.6418, "V5": -0.9948, "V6": -0.7114,
+  "V7": -2.4752, "V8": 0.9798, "V9": -2.0681,
+  "V10": -4.4932, "V11": 2.2134, "V12": -4.7055,
+  "V13": 0.6567, "V14": -6.4585, "V15": 0.6487,
+  "V16": -5.5461, "V17": -7.743, "V18": -3.7183,
+  "V19": 2.1069, "V20": 0.7284, "V21": 0.8879,
+  "V22": 0.1125, "V23": -0.3529, "V24": -0.8645,
+  "V25": 0.4314, "V26": 1.5691, "V27": 1.5629,
+  "V28": 0.7648
+}</pre>
+                <div class="expected">Expected: <strong class="high-text">HIGH risk · ~95% probability</strong></div>
+            </div>
+        </div>
+
+        <div class="endpoints">
+            <div class="section-tag" style="margin-bottom:20px">ENDPOINTS</div>
+            <div class="endpoint-row">
+                <span class="method post">POST</span>
+                <code>/predict?model=rf</code>
+                <span class="ep-desc">Run fraud prediction with Random Forest</span>
+            </div>
+            <div class="endpoint-row">
+                <span class="method post">POST</span>
+                <code>/predict?model=logistic</code>
+                <span class="ep-desc">Run fraud prediction with Logistic Regression</span>
+            </div>
+            <div class="endpoint-row">
+                <span class="method get">GET</span>
+                <code>/explain?model=rf</code>
+                <span class="ep-desc">Top 10 most predictive features</span>
+            </div>
+            <div class="endpoint-row">
+                <span class="method get">GET</span>
+                <code>/health</code>
+                <span class="ep-desc">Server and model status</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">FRAUDGUARD<span class="logo-dot">.</span></div>
+        <div class="footer-stack">Built with FastAPI · Scikit-learn · Docker · Python 3.13</div>
+        <div class="footer-links">
+            <a href="/docs">API Docs</a>
+            <a href="/health">Health</a>
+            <a href="/explain?model=rf">Feature Importance</a>
+        </div>
+    </div>
+</footer>
+
+<div id="toast" class="toast">Copied to clipboard</div>
 
 <script>
-document.getElementById("loadExample").addEventListener("click", () => {
-    document.getElementById("time").value = 406;
-    document.getElementById("amount").value = 1.0;
-    window.exampleV = {
-        V1:-2.3122,V2:1.952,V3:-1.6099,V4:3.9979,V5:-0.5222,
-        V6:-1.4265,V7:-2.5374,V8:1.3917,V9:-2.7701,V10:-2.7723,
-        V11:3.202,V12:-2.8999,V13:-0.5952,V14:-4.2893,V15:0.3897,
-        V16:-1.1407,V17:-2.8301,V18:-0.0168,V19:0.417,V20:0.1269,
-        V21:0.5172,V22:-0.035,V23:-0.4652,V24:0.3202,V25:0.0445,
-        V26:0.1778,V27:0.2611,V28:-0.1433
-    };
+// Animated grid background
+const canvas = document.getElementById('grid-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, dots = [];
+
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+
+function initDots() {
+    dots = [];
+    const spacing = 60;
+    for (let x = 0; x < W; x += spacing) {
+        for (let y = 0; y < H; y += spacing) {
+            dots.push({ x, y, baseX: x, baseY: y, r: Math.random() * Math.PI * 2 });
+        }
+    }
+}
+
+let frame = 0;
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    frame += 0.003;
+    dots.forEach(d => {
+        const pulse = Math.sin(frame + d.r) * 0.4 + 0.6;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, 1, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 212, 255, ${pulse * 0.12})`;
+        ctx.fill();
+    });
+    requestAnimationFrame(draw);
+}
+
+resize();
+initDots();
+draw();
+window.addEventListener('resize', () => { resize(); initDots(); });
+
+// Health check
+fetch('/health').then(r => r.json()).then(data => {
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    dot.classList.add('online');
+    txt.textContent = 'API online';
+}).catch(() => {
+    document.getElementById('statusText').textContent = 'offline';
 });
 
-document.getElementById("fraudForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+// Counter animation
+function animateCount(el) {
+    const target = parseInt(el.dataset.target);
+    if (!target) return;
+    let current = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.floor(current).toLocaleString();
+        if (current >= target) clearInterval(timer);
+    }, 16);
+}
 
-    const model = document.getElementById("model").value;
-
-    const vFields = window.exampleV || {
-        V1:0,V2:0,V3:0,V4:0,V5:0,V6:0,V7:0,V8:0,V9:0,V10:0,
-        V11:0,V12:0,V13:0,V14:0,V15:0,V16:0,V17:0,V18:0,V19:0,V20:0,
-        V21:0,V22:0,V23:0,V24:0,V25:0,V26:0,V27:0,V28:0
-    };
-
-    const formData = {
-        Time: parseFloat(document.getElementById("time").value),
-        Amount: parseFloat(document.getElementById("amount").value),
-        ...vFields
-    };
-
-    window.exampleV = null;
-
-    const response = await fetch(`/predict?model=${model}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.querySelectorAll('[data-target]').forEach(animateCount);
+            observer.unobserve(e.target);
+        }
     });
+});
+document.querySelectorAll('.hero-stats').forEach(el => observer.observe(el));
 
-    const result = await response.json();
+// Bar animations
+const barObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.querySelectorAll('.bar-fill').forEach(bar => {
+                bar.style.width = bar.style.getPropertyValue('--w');
+            });
+            barObserver.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.3 });
+document.querySelectorAll('.model-card').forEach(el => barObserver.observe(el));
 
-    const card = document.getElementById("resultCard");
-    const riskText = document.getElementById("riskLevel");
-    const probText = document.getElementById("probability");
+// Copy buttons
+const legitJson = document.getElementById('legit-json').textContent;
+const fraudJson = document.getElementById('fraud-json').textContent;
 
-    riskText.innerText = "Risk: " + result.risk_level;
-    probText.innerText = "Fraud Probability: " + (result.fraud_probability * 100).toFixed(2) + "%";
+function copyExample(type) {
+    const text = type === 'legit' ? legitJson : fraudJson;
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    });
+}
 
-    card.classList.remove("low", "medium", "high", "hidden");
-
-    if (result.risk_level === "HIGH") card.classList.add("high");
-    else if (result.risk_level === "MEDIUM") card.classList.add("medium");
-    else card.classList.add("low");
+// Staggered reveal on scroll
+const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('revealed');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.pipeline-step, .model-card, .example-card, .endpoint-row').forEach(el => {
+    el.classList.add('reveal');
+    revealObserver.observe(el);
 });
 </script>
-
 </body>
 </html>
