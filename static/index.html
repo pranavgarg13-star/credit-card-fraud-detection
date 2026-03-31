@@ -24,6 +24,8 @@
         </select>
 
         <button type="submit">Check Fraud</button>
+        <p class="note">Demo uses Amount and Time only. V1-V28 are anonymized bank features.</p>
+        <button type="button" id="loadExample">Load fraud example</button>
     </form>
 
     <div id="resultCard" class="card hidden">
@@ -33,29 +35,37 @@
 </div>
 
 <script>
-async function checkFraud(formData) {
-    const response = await fetch(`/predict?model=${formData.model}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-    });
-
-    const result = await response.json();
-    return result;
-}
+document.getElementById("loadExample").addEventListener("click", () => {
+    document.getElementById("time").value = 406;
+    document.getElementById("amount").value = 1.0;
+    window.exampleV = {
+        V1:-2.3122,V2:1.952,V3:-1.6099,V4:3.9979,V5:-0.5222,
+        V6:-1.4265,V7:-2.5374,V8:1.3917,V9:-2.7701,V10:-2.7723,
+        V11:3.202,V12:-2.8999,V13:-0.5952,V14:-4.2893,V15:0.3897,
+        V16:-1.1407,V17:-2.8301,V18:-0.0168,V19:0.417,V20:0.1269,
+        V21:0.5172,V22:-0.035,V23:-0.4652,V24:0.3202,V25:0.0445,
+        V26:0.1778,V27:0.2611,V28:-0.1433
+    };
+});
 
 document.getElementById("fraudForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const model = document.getElementById("model").value;
 
-    const formData = {
-        Time: parseFloat(document.getElementById("time").value),
-        Amount: parseFloat(document.getElementById("amount").value),
+    const vFields = window.exampleV || {
         V1:0,V2:0,V3:0,V4:0,V5:0,V6:0,V7:0,V8:0,V9:0,V10:0,
         V11:0,V12:0,V13:0,V14:0,V15:0,V16:0,V17:0,V18:0,V19:0,V20:0,
         V21:0,V22:0,V23:0,V24:0,V25:0,V26:0,V27:0,V28:0
     };
+
+    const formData = {
+        Time: parseFloat(document.getElementById("time").value),
+        Amount: parseFloat(document.getElementById("amount").value),
+        ...vFields
+    };
+
+    window.exampleV = null;
 
     const response = await fetch(`/predict?model=${model}`, {
         method: "POST",
@@ -74,13 +84,9 @@ document.getElementById("fraudForm").addEventListener("submit", async (e) => {
 
     card.classList.remove("low", "medium", "high", "hidden");
 
-    if (result.risk_level === "HIGH") {
-        card.classList.add("high");
-    } else if (result.risk_level === "MEDIUM") {
-        card.classList.add("medium");
-    } else {
-        card.classList.add("low");
-    }
+    if (result.risk_level === "HIGH") card.classList.add("high");
+    else if (result.risk_level === "MEDIUM") card.classList.add("medium");
+    else card.classList.add("low");
 });
 </script>
 

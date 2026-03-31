@@ -73,3 +73,10 @@ button:hover {
 .high {
     background: #dc3545; /* Red */
 }
+
+.note {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+    text-align: center;
+}
